@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sayi Farms — Pure Organic, Straight from Nature</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --gold:       #f5bb0b;
+      --gold-light: #FDE68A;
+      --gold-deep:  #D97706;
+      --amber:      #B45309;
+      --green-deep: #4bbf7a;
+      --green-mid:  #39aa8a;
+      --green-leaf: #15803D;
+      --green-light:#37c085;
+      --cream:      #FEF9EF;
+      --brown:      #78350F;
+      --sky-dawn:   #FF6B35;
+      --sky-mid:    #f3a885;
+      --sky-light:  #FEF3C7;
+      --text-dark:  #1C1917;
+      --text-mid:   #44403C;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ─── SCROLLBAR ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    /* ─── NAVBAR ────────────────────────────────────────────── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      transition: background 0.4s, box-shadow 0.4s, padding 0.3s;
+    }
+    .navbar.scrolled {
+      background: rgba(75, 161, 110, 0.97);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+      padding: 0.6rem 3rem;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--gold), var(--green-leaf));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 0 18px rgba(227, 157, 36, 0.811);
+    }
+    .nav-logo-text { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; }
+    .nav-logo-text span { color: var(--gold); }
+    .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.9); text-decoration: none;
+      font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 2px; background: var(--gold);
+      transform: scaleX(0); transition: transform 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold-light); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-cart {
+      background: var(--gold); color: #fff; border: none;
+      padding: 0.55rem 1.4rem; border-radius: 50px; cursor: pointer;
+      font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cart:hover { transform: scale(1.05); box-shadow: 0 4px 18px rgba(245,158,11,0.5); }
+    .cart-badge {
+      background: #fff; color: var(--green-deep); border-radius: 50%;
+      width: 20px; height: 20px; font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center; font-weight: 900;
+    }
+
+    /* ─── HERO WRAPPER (sticky scroll scene) ────────────────── */
+    .hero-wrapper {
+      position: relative;
+      height: 350vh;
+    }
+    .hero-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #32c161;
+    }
+
+    /* SKY LAYERS */
+    .sky-layer {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg,
+  #fb8358 0%,
+  #fdf669 25%,
+  #fcd34d 50%,
+  #f49052 75%,
+  #fef3c7 100%
+);
+      transition: none;
+    }
+    .sky-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 70% 20%, rgba(255,200,50,0.55) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* SUN */
+    
+
+    /* HILLS */
+    .hill-far {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
+      background: #25b7a4;
+      clip-path: ellipse(65% 55% at 38% 100%);
+    }
+    .hill-far2 {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
+      background: #22a882;
+      clip-path: ellipse(75% 60% at 72% 100%);
+    }
+    .hill-near {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 30%;
+      background: linear-gradient(180deg, #35dd54 0%, #3ad49e 100%);
+      clip-path: ellipse(80% 70% at 50% 100%);
+    }
+
+    /* PADDY FIELD GROUND */
+    .paddy-ground {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 48%;
+      background: linear-gradient(180deg,
+  #34d399 0%,   /* fresh green */
+  #2bbf9f 50%,  /* green + turquoise mix */
+  #1f9e89 100%  /* deeper green-turquoise */
+);
+      transform-origin: bottom center;
+    }
+    /* water lines in paddy field */
+    .paddy-ground::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 8px;
+      background: linear-gradient(90deg,
+        transparent 0%, rgba(110,231,183,0.4) 20%, transparent 40%,
+        rgba(110,231,183,0.3) 60%, transparent 80%, rgba(110,231,183,0.4) 100%);
+    }
+
+    /* PADDY STALK ROWS - SVG-driven */
+    .paddy-rows-container {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 55%;
+      transform-origin: bottom center;
+      overflow: hidden;
+    }
+
+    /* SINGLE BIG LEAF (zoom-in element) */
+    .hero-leaf-container {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .hero-leaf-svg {
+      width: 400px; height: auto;
+      filter: drop-shadow(0 0 40px rgba(44, 225, 168, 0.6)) drop-shadow(0 0 80px rgba(245,158,11,0.3));
+    }
+
+    /* GOLDEN DUST PARTICLES */
+    .particles-container {
+      position: absolute; inset: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249, 164, 16, 0.9) 0%, rgb(25, 229, 252) 60%, transparent 100%);
+      animation: floatParticle linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatParticle {
+      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.7; }
+      100% { transform: translateY(-20vh) translateX(var(--dx)) scale(1.5); opacity: 0; }
+    }
+
+    /* HERO TEXT */
+    .hero-content {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; z-index: 10;
+      padding: 2rem;
+    }
+    .hero-badge {
+      background: rgba(244, 250, 124, 0.642); border: 1px solid rgba(7, 155, 115, 0.882);
+      color: var(--white); padding: 0.4rem 1.2rem; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 1.2rem; backdrop-filter: blur(6px);
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900; color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      margin-bottom: 0.8rem;
+    }
+    .hero-title span { color: var(--white); display: block; }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 400;
+      color: rgba(255,255,255,0.85); max-width: 500px; line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      color: #fff; border: none; padding: 0.85rem 2.2rem;
+      border-radius: 50px; font-weight: 800; font-size: 1rem; cursor: pointer;
+      box-shadow: 0 6px 28px rgba(245,158,11,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(245,158,11,0.6); }
+    .btn-outline {
+      background: rgba(255,255,255,0.1); color: #fff;
+      border: 2px solid rgba(255,255,255,0.5); padding: 0.85rem 2.2rem;
+      border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.3s, border-color 0.3s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.9); }
+
+    /* scroll indicator */
+    .scroll-indicator {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      color: rgba(255,255,255,0.7); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em;
+      z-index: 10;
+    }
+    .scroll-dot {
+      width: 30px; height: 50px; border: 2px solid rgba(255,255,255,0.5); border-radius: 15px;
+      position: relative;
+    }
+    .scroll-dot::before {
+      content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 6px; height: 6px; background: var(--gold); border-radius: 50%;
+      animation: scrollBounce 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollBounce { 0%,100%{top:8px;opacity:1} 50%{top:26px;opacity:0.4} }
+
+    /* ─── SECTION COMMONS ───────────────────────────────────── */
+    section { position: relative; }
+    .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section-tag {
+      display: inline-block;
+      background: rgba(21,128,61,0.12); color: var(--green-leaf);
+      padding: 0.35rem 1rem; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;
+      color: var(--text-dark); line-height: 1.15; margin-bottom: 1.2rem;
+    }
+    .section-title em { font-style: italic; color: var(--green-leaf); }
+    .section-desc {
+      font-size: 1.1rem; color: var(--text-mid); line-height: 1.8; max-width: 600px;
+    }
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s, transform 0.7s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── MARQUEE STRIP ─────────────────────────────────────── */
+    .marquee-section {
+      background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+      padding: 0.9rem 0; overflow: hidden;
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marqueeScroll 20s linear infinite;
+      width: max-content;
+    }
+    @keyframes marqueeScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .marquee-item {
+      white-space: nowrap; color: rgba(255,255,255,0.8);
+      font-size: 0.9rem; font-weight: 700; letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .marquee-dot { color: var(--gold); font-size: 1.1rem; }
+
+    /* ─── ABOUT ─────────────────────────────────────────────── */
+    .about-section { padding: 7rem 0; background: var(--cream); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .about-visual {
+      position: relative; height: 500px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-circle-bg {
+      position: absolute;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%);
+    }
+    .about-circle-bg::before {
+      content: ''; position: absolute; inset: -12px; border-radius: 50%;
+      border: 2px dashed rgba(67, 210, 162, 0.472);
+      animation: rotateSlow 20s linear infinite;
+    }
+    @keyframes rotateSlow { to { transform: rotate(360deg); } }
+    .about-main-img {
+      position: relative; z-index: 2;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: linear-gradient(135deg, #14532d 0%, #15803d 50%, #22c55e 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9rem;
+      box-shadow: 0 20px 60px rgba(20,83,45,0.4);
+      overflow: hidden;
+    }
+    .about-badge-float {
+      position: absolute; background: #fff;
+      border-radius: 16px; padding: 0.8rem 1.2rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      display: flex; align-items: center; gap: 0.6rem;
+      font-weight: 700; font-size: 0.85rem;
+    }
+    .about-badge-float.one { top: 20px; right: 20px; }
+    .about-badge-float.two { bottom: 60px; left: 10px; }
+    .about-badge-float.three { top: 100px; left: 0; }
+    .badge-icon { font-size: 1.5rem; }
+    .badge-text-main { color: var(--text-dark); font-size: 1.1rem; }
+    .badge-text-sub { color: var(--text-mid); font-size: 0.75rem; font-weight: 400; }
+    .about-text-block { display: flex; flex-direction: column; gap: 1.5rem; }
+    .about-stats { display: flex; gap: 2.5rem; margin: 1.5rem 0; }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 900;
+      color: var(--green-leaf); line-height: 1;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-mid); font-weight: 600; margin-top: 0.2rem; }
+    .stat-divider { width: 1px; background: #d4d4d4; }
+
+    /* ─── PRODUCTS ──────────────────────────────────────────── */
+    .products-section {
+      padding: 7rem 0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
+    }
+    .products-header { text-align: center; margin-bottom: 4rem; }
+    .products-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+    }
+    .product-card {
+      background: #fff; border-radius: 24px;
+      overflow: hidden; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s;
+      position: relative;
+    }
+    .product-card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+    .product-card.featured {
+      grid-column: span 1; background: linear-gradient(135deg, #14532d 0%, #15803d 100%);
+    }
+    .product-img-wrap {
+      height: 220px; display: flex; align-items: center; justify-content: center;
+      font-size: 7rem; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    }
+    .product-card.featured .product-img-wrap { background: rgba(255,255,255,0.1); }
+    .product-img-wrap .product-emoji {
+      animation: floatEmoji 3s ease-in-out infinite;
+      display: block; line-height: 1;
+    }
+    @keyframes floatEmoji { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(3deg)} }
+    .product-shine {
+      position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+      transform: translateX(-100%); transition: transform 0.6s;
+    }
+    .product-card:hover .product-shine { transform: translateX(100%); }
+    .product-tag-organic {
+      position: absolute; top: 12px; left: 12px;
+      background: var(--gold); color: #fff;
+      padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .product-body { padding: 1.5rem; }
+    .product-card.featured .product-body * { color: #fff !important; }
+    .product-card.featured .product-price-tag { background: rgba(255,255,255,0.2) !important; color: var(--gold-light) !important; }
+    .product-name {
+      font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700;
+      color: var(--text-dark); margin-bottom: 0.5rem;
+    }
+    .product-desc { font-size: 0.9rem; color: var(--text-mid); line-height: 1.65; margin-bottom: 1rem; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price-tag {
+      background: #f0fdf4; color: var(--green-deep);
+      padding: 0.35rem 0.8rem; border-radius: 20px;
+      font-weight: 800; font-size: 0.95rem;
+    }
+    .btn-add-cart {
+      background: linear-gradient(135deg, var(--green-leaf), var(--green-deep));
+      color: #fff; border: none; padding: 0.55rem 1.3rem;
+      border-radius: 50px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-add-cart:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(21,128,61,0.4); }
+    .product-card.featured .btn-add-cart { background: var(--gold); }
+    /* 5th card spans 2 cols */
+    .product-card.wide { grid-column: span 2; }
+    .product-card.wide .product-img-wrap { height: 180px; }
+
+    /* ─── WHY ORGANIC ───────────────────────────────────────── */
+    .why-section { padding: 7rem 0; background: #fff; }
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .why-features { display: flex; flex-direction: column; gap: 1.8rem; margin-top: 2rem; }
+    .feature-item { display: flex; gap: 1.2rem; align-items: flex-start; }
+    .feature-icon {
+      width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    }
+    .fi-green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+    .fi-amber { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .fi-blue  { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .fi-rose  { background: linear-gradient(135deg, #ffe4e6, #fecdd3); }
+    .feature-text h4 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .feature-text p  { font-size: 0.9rem; color: var(--text-mid); line-height: 1.65; }
+    .why-visual {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .why-card {
+      border-radius: 20px; padding: 2rem; text-align: center;
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      transition: transform 0.3s;
+    }
+    .why-card:hover { transform: scale(1.03); }
+    .why-card:nth-child(2) { background: linear-gradient(135deg, #fef9c3, #fde68a); margin-top: 1.5rem; }
+    .why-card:nth-child(3) { background: linear-gradient(135deg, #ffe4e6, #fecdd3); margin-top: -1.5rem; }
+    .why-card:nth-child(4) { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .why-card-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+    .why-card h4 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .why-card p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.6; }
+
+    /* ─── PROCESS ───────────────────────────────────────────── */
+    .process-section {
+      padding: 6rem 0;
+      background: linear-gradient(135deg, var(--green-deep) 0%, #0f4020 100%);
+      position: relative; overflow: hidden;
+    }
+    .process-section::before {
+      content: ''; position: absolute; top: -40%; right: -20%;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%);
+    }
+    .process-section .section-title { color: #fff; }
+    .process-section .section-tag { background: rgba(245,158,11,0.2); color: var(--gold-light); }
+    .process-section .section-desc { color: rgba(255,255,255,0.7); }
+    .process-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+      margin-top: 3rem; position: relative;
+    }
+    .process-steps::before {
+      content: ''; position: absolute; top: 40px; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      z-index: 0;
+    }
+    .process-step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 1.2rem;
+      box-shadow: 0 0 0 8px rgba(245,158,11,0.2), 0 8px 24px rgba(245,158,11,0.3);
+    }
+    .step-title { color: #fff; font-weight: 800; font-size: 1rem; margin-bottom: 0.5rem; }
+    .step-desc { color: rgba(255,255,255,0.65); font-size: 0.85rem; line-height: 1.65; }
+
+    
+
+    /* ─── GALLERY ───────────────────────────────────────────── */
+    .gallery-section {
+      padding: 7rem 0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
+    }
+    .gallery-header { text-align: center; margin-bottom: 3rem; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 200px 200px;
+      gap: 1rem;
+    }
+    .gallery-item {
+      border-radius: 20px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      transition: transform 0.4s, box-shadow 0.4s; cursor: pointer;
+      position: relative;
+    }
+    .gallery-item:hover { transform: scale(1.03); box-shadow: 0 16px 40px rgba(0,0,0,0.2); z-index: 2; }
+    .gallery-item:nth-child(1) { grid-row: span 2; background: linear-gradient(135deg, #166534 0%, #22c55e 100%); font-size: 10rem; }
+    .gallery-item:nth-child(2) { background: linear-gradient(135deg, #fef3c7, #f59e0b); }
+    .gallery-item:nth-child(3) { background: linear-gradient(135deg, #ffe4e6, #f87171); }
+    .gallery-item:nth-child(4) { background: linear-gradient(135deg, #ede9fe, #8b5cf6); }
+    .gallery-item:nth-child(5) { background: linear-gradient(135deg, #fef9c3, #84cc16); }
+    .gallery-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+      color: #fff; padding: 1.5rem 1rem 0.8rem;
+      font-weight: 700; font-size: 1rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-label { opacity: 1; }
+
+    /* ─── CONTACT / ORDER ───────────────────────────────────── */
+    .contact-section {
+      padding: 7rem 0;
+      background: linear-gradient(135deg, var(--green-deep) 0%, #0f4020 100%);
+    }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .contact-info .section-title { color: #fff; }
+    .contact-info .section-desc { color: rgba(255,255,255,0.7); }
+    .contact-details { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 2rem; }
+    .contact-detail-item {
+      display: flex; align-items: center; gap: 1rem;
+      color: rgba(255,255,255,0.85); font-size: 0.95rem;
+    }
+    .contact-detail-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .order-form {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 28px; padding: 2.5rem; backdrop-filter: blur(20px);
+    }
+    .order-form h3 {
+      font-family: 'Playfair Display', serif; color: #fff; font-size: 1.8rem;
+      margin-bottom: 1.8rem;
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px; padding: 0.85rem 1.1rem; color: #fff; font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem; transition: border-color 0.3s, background 0.3s;
+      outline: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.4); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--gold); background: rgba(255,255,255,0.14);
+    }
+    .form-group select option { background: var(--green-deep); color: #fff; }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit {
+      width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      color: #fff; border: none; padding: 1rem; border-radius: 12px;
+      font-weight: 800; font-size: 1rem; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s; margin-top: 0.5rem;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.5); }
+
+    /* ─── FOOTER ────────────────────────────────────────────── */
+    footer {
+      background: #0a1f0e; color: rgba(255,255,255,0.7);
+      padding: 4rem 0 2rem;
+    }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .footer-brand p { font-size: 0.9rem; line-height: 1.75; margin-top: 1rem; max-width: 280px; }
+    .footer-col h4 { color: #fff; font-weight: 800; margin-bottom: 1.2rem; font-size: 0.95rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-col ul a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--gold); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; }
+    .footer-bottom p { font-size: 0.85rem; }
+    .footer-bottom span { color: var(--gold); }
+    .social-links { display: flex; gap: 1rem; }
+    .social-link {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      cursor: pointer; transition: background 0.2s;
+      text-decoration: none; color: inherit;
+    }
+    .social-link:hover { background: var(--gold); }
+
+    /* ─── CART MODAL ────────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000;
+      display: flex; align-items: center; justify-content: flex-end;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.25s ease;
+    }
+    .cart-panel {
+      background: #fff; width: 420px; height: 100vh;
+      display: flex; flex-direction: column;
+      animation: slideInRight 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
+    .cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 1.8rem; border-bottom: 1px solid #f0f0f0;
+    }
+    .cart-header h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+    .cart-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-mid); transition: transform 0.2s; }
+    .cart-close:hover { transform: rotate(90deg); }
+    .cart-items { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .cart-item {
+      display: flex; gap: 1rem; align-items: center;
+      padding: 1rem; border: 1px solid #f0f0f0; border-radius: 16px;
+      transition: box-shadow 0.2s;
+    }
+    .cart-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .cart-item-icon {
+      width: 56px; height: 56px; border-radius: 12px;
+      background: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 2rem;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 700; font-size: 0.95rem; }
+    .cart-item-price { color: var(--green-leaf); font-weight: 800; font-size: 0.9rem; margin-top: 0.2rem; }
+    .cart-qty-ctrl { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e5e5e5;
+      background: #fff; cursor: pointer; font-weight: 700; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .qty-btn:hover { background: var(--green-leaf); color: #fff; border-color: var(--green-leaf); }
+    .qty-num { font-weight: 700; width: 20px; text-align: center; }
+    .cart-remove { background: none; border: none; cursor: pointer; color: #ccc; font-size: 1.1rem; transition: color 0.2s; }
+    .cart-remove:hover { color: #ef4444; }
+    .cart-footer { padding: 1.5rem 1.8rem; border-top: 1px solid #f0f0f0; }
+    .cart-total { display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; margin-bottom: 1.2rem; }
+    .cart-total-price { color: var(--green-leaf); }
+    .btn-checkout {
+      width: 100%; background: linear-gradient(135deg, var(--green-leaf), var(--green-deep));
+      color: #fff; border: none; padding: 1rem; border-radius: 12px;
+      font-weight: 800; font-size: 1rem; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(21,128,61,0.4); }
+    .cart-empty { text-align: center; color: var(--text-mid); padding: 3rem; font-size: 1rem; }
+    .cart-empty-icon { font-size: 4rem; display: block; margin-bottom: 1rem; }
+
+    /* ─── TOAST ─────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: var(--green-deep); color: #fff;
+      padding: 0.9rem 2rem; border-radius: 50px;
+      font-weight: 700; font-size: 0.95rem; z-index: 3000;
+      display: flex; align-items: center; gap: 0.5rem;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+      animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 2.5s forwards;
+    }
+    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+    @keyframes toastOut { to{opacity:0;transform:translateX(-50%) translateY(20px)} }
+
+    /* ─── RESPONSIVE ────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .navbar { padding: 1rem 1.5rem; }
+      .navbar.scrolled { padding: 0.6rem 1.5rem; }
+      .nav-links { display: none; }
+      .about-grid, .why-grid, .contact-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr 1fr; }
+      .product-card.wide { grid-column: span 2; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .gallery-item:nth-child(1) { grid-row: span 1; font-size: 6rem; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: 1fr; }
+      .product-card.wide { grid-column: span 1; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .cart-panel { width: 100%; }
+      .about-circle-bg { width: 260px; height: 260px; }
+      .about-main-img { width: 220px; height: 220px; font-size: 6rem; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef, useCallback } = React;
+
+  // ── DATA ────────────────────────────────────────────────────
+  const PRODUCTS = [
+    {
+      id: 1, emoji: '🌾', name: 'Organic Paddy', price: '₹45/kg',
+      tag: '100% Organic',
+      desc: 'Hand-harvested aromatic paddy grown in mineral-rich soil. Perfect for premium quality rice with natural fragrance and taste.',
+      featured: false
+    },
+    {
+      id: 2, emoji: '💛', name: 'Golden Turmeric', price: '₹180/kg',
+      tag: 'Anti-Inflammatory',
+      desc: 'Sun-dried and stone-ground turmeric with 5%+ curcumin content. Rich golden colour, deep earthy aroma.',
+      featured: true
+    },
+    {
+      id: 3, emoji: '🥜', name: 'Farm Groundnuts', price: '₹90/kg',
+      tag: 'Cold-Pressed',
+      desc: 'Freshly-harvested, sun-dried groundnuts. Rich in natural oils, perfect for oil extraction or direct consumption.',
+      featured: false
+    },
+    {
+      id: 4, emoji: '🟤', name: 'Sweet Chikoo', price: '₹60/kg',
+      tag: 'Tree-Ripened',
+      desc: 'Tree-ripened sapota bursting with natural sweetness and a smooth caramel-like texture. Nature\'s candy.',
+      featured: false
+    },
+    {
+      id: 5, emoji: '🥭', name: 'Organic Mango', price: '₹120/kg',
+      tag: 'Naturally Ripened',
+      desc: 'Farm-fresh mangoes ripened on the tree without any chemicals. Juicy, fibre-rich and incredibly sweet.',
+      featured: false, wide: true
+    },
+  ];
+
+  
+
+  // ── PARTICLE COMPONENT ───────────────────────────────────────
+  function Particles() {
+    const particles = Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: `${4 + Math.random() * 8}px`,
+      delay: `${Math.random() * 8}s`,
+      duration: `${6 + Math.random() * 10}s`,
+      dx: `${(Math.random() - 0.5) * 200}px`,
+    }));
+    return (
+      <div className="particles-container">
+        {particles.map(p => (
+          <div key={p.id} className="particle" style={{
+            left: p.left, width: p.size, height: p.size,
+            animationDelay: p.delay, animationDuration: p.duration,
+            '--dx': p.dx,
+          }} />
+        ))}
+      </div>
+    );
+  }
+
+  // ── PADDY SVG FIELD ──────────────────────────────────────────
+  function PaddyField({ progress }) {
+    const rows = [
+      { y: 85, count: 22, h: 28, headSize: 5, opacity: 0.7 },
+      { y: 75, count: 18, h: 40, headSize: 7, opacity: 0.85 },
+      { y: 65, count: 14, h: 56, headSize: 9, opacity: 1 },
+      { y: 50, count: 10, h: 80, headSize: 12, opacity: 1 },
+    ];
+    return (
+      <svg viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax meet"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, width: '100%', height: '56%' }}>
+        {rows.map((row, ri) =>
+          Array.from({ length: row.count }, (_, i) => {
+            const x = (1200 / row.count) * i + (1200 / row.count / 2);
+            const baseY = row.y / 100 * 420;
+            const sway = Math.sin(i * 1.3 + ri) * 8;
+            return (
+              <g key={`${ri}-${i}`} opacity={row.opacity}
+                style={{ animation: `sway${(i % 3) + 1} ${2.5 + (i % 3) * 0.5}s ease-in-out ${(i * 0.2) % 1}s infinite alternate` }}>
+                {/* Stalk */}
+                <line
+                  x1={x} y1={baseY}
+                  x2={x + sway} y2={baseY - row.h}
+                  stroke={`hsl(${120 + ri * 10}, ${60 - ri * 5}%, ${25 + ri * 5}%)`}
+                  strokeWidth={row.headSize * 0.35}
+                  strokeLinecap="round"
+                />
+                {/* Grain Head */}
+                <ellipse
+                  cx={x + sway} cy={baseY - row.h}
+                  rx={row.headSize * 0.6} ry={row.headSize * 1.5}
+                  fill={progress > 0.4 ? `hsl(${40 + ri * 5}, 80%, 65%)` : `hsl(${120 + ri * 8}, 55%, 38%)`}
+                  style={{ transition: 'fill 0.5s' }}
+                />
+                {/* Leaf */}
+                <ellipse
+                  cx={x + sway / 2} cy={baseY - row.h * 0.45}
+                  rx={row.headSize * 1.1} ry={row.headSize * 0.35}
+                  fill={`hsl(${125 + ri * 5}, 55%, ${30 + ri * 4}%)`}
+                  transform={`rotate(${-35 + sway * 2}, ${x + sway / 2}, ${baseY - row.h * 0.45})`}
+                />
+              </g>
+            );
+          })
+        )}
+        <style>{`
+          @keyframes sway1{0%{transform:rotate(-2deg) translateX(-1px)}100%{transform:rotate(2deg) translateX(1px)}}
+          @keyframes sway2{0%{transform:rotate(-3deg) translateX(-2px)}100%{transform:rotate(2deg) translateX(2px)}}
+          @keyframes sway3{0%{transform:rotate(-1deg)}100%{transform:rotate(3deg)}}
+        `}</style>
+      </svg>
+    );
+  }
+
+  // ── BIG PADDY LEAF SVG ───────────────────────────────────────
+  function PaddyLeafBig() {
+    return (
+      <svg className="hero-leaf-svg" viewBox="0 0 200 600" fill="none">
+        <defs>
+          <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#22c55e" />
+            <stop offset="40%" stopColor="#16a34a" />
+            <stop offset="80%" stopColor="#86efac" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#fde047" />
+          </linearGradient>
+          <filter id="leafGlow">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        {/* Main leaf body */}
+        <path d="M100 590 Q20 400 60 200 Q100 50 100 10 Q100 50 140 200 Q180 400 100 590Z"
+          fill="url(#leafGrad)" filter="url(#leafGlow)" opacity="0.9" />
+        {/* Central vein */}
+        <line x1="100" y1="590" x2="100" y2="10" stroke="rgba(255,255,255,0.5)" strokeWidth="2" />
+        {/* Side veins */}
+        {[100,160,220,280,340,400,460].map((y, i) => (
+          <g key={i}>
+            <line x1="100" y1={y} x2={100 - 35 + i * 2} y2={y + 30}
+              stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+            <line x1="100" y1={y} x2={100 + 35 - i * 2} y2={y + 30}
+              stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+          </g>
+        ))}
+        {/* Golden light spot */}
+        <ellipse cx="120" cy="180" rx="30" ry="60"
+          fill="rgba(253,224,71,0.2)" transform="rotate(-15,120,180)" />
+      </svg>
+    );
+  }
+
+  // ── HERO SECTION ─────────────────────────────────────────────
+  function Hero({ cartCount, onOpenCart }) {
+    const wrapperRef = useRef(null);
+    const [scrollP, setScrollP] = useState(0);
+
+    useEffect(() => {
+      const onScroll = () => {
+        const el = wrapperRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const total = el.offsetHeight - window.innerHeight;
+        const scrolled = -rect.top;
+        const p = Math.max(0, Math.min(1, scrolled / total));
+        setScrollP(p);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    // Interpolated animation values
+    const skyBrightness  = 1 - scrollP * 0.25;
+    const sunOpacity     = 1 - scrollP * 1.2;
+    const fieldScale     = 1 + scrollP * 2.2;
+    const fieldTranslateY = scrollP * -25;
+    const leafOpacity    = scrollP > 0.28 ? Math.min(1, (scrollP - 0.28) / 0.35) : 0;
+    const leafScale      = 0.6 + scrollP * 1.8;
+    const heroTextOpacity = 1 - scrollP * 3;
+    const heroTextY      = scrollP * -60;
+    const goldenOverlay  = scrollP * 0.45;
+
+    return (
+      <div ref={wrapperRef} className="hero-wrapper">
+        <div className="hero-sticky">
+          {/* Sky */}
+          <div className="sky-layer" style={{ filter: `brightness(${skyBrightness})` }} />
+          <div className="sky-overlay" />
+
+          {/* Sun */}
+          <div className="sun" style={{ opacity: Math.max(0, sunOpacity) }} />
+
+          {/* Hills (parallax) */}
+          <div className="hill-far" style={{ transform: `translateY(${scrollP * 18}px)` }} />
+          <div className="hill-far2" style={{ transform: `translateY(${scrollP * 12}px)` }} />
+          <div className="hill-near" style={{ transform: `translateY(${scrollP * 6}px)` }} />
+
+          {/* Paddy field rows zoom */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: '56%',
+            transformOrigin: 'bottom center',
+            transform: `scale(${fieldScale}) translateY(${fieldTranslateY}%)`,
+          }}>
+            <PaddyField progress={scrollP} />
+          </div>
+
+          {/* Paddy Ground */}
+          <div className="paddy-ground" style={{
+            transform: `scaleX(${1 + scrollP * 0.5}) scaleY(${1 + scrollP * 0.2})`,
+            transformOrigin: 'bottom center',
+          }} />
+
+          {/* Golden overlay as we zoom in */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: `radial-gradient(ellipse 80% 60% at 60% 30%, rgba(245,158,11,${goldenOverlay}) 0%, transparent 70%)`,
+          }} />
+
+          {/* THE BIG PADDY LEAF — zooms into screen */}
+          <div className="hero-leaf-container" style={{ opacity: leafOpacity }}>
+            <div style={{ transform: `scale(${leafScale})` }}>
+              <PaddyLeafBig />
+            </div>
+          </div>
+
+          {/* Particles */}
+          <Particles />
+
+          {/* Hero Text */}
+          <div className="hero-content" style={{
+            opacity: Math.max(0, heroTextOpacity),
+            transform: `translateY(${heroTextY}px)`,
+          }}>
+            <div className="hero-badge">🌿 Since 2023</div>
+            <h1 className="hero-title">
+              Sayi <span>Farms</span>
+            </h1>
+            <p className="hero-subtitle">
+              From our fields to your family's table — pure, honest, organic produce grown with love and ancient wisdom.
+            </p>
+            <div className="hero-ctas">
+              <a href="#products" className="btn-primary">Shop Our Harvest</a>
+              <a href="#about" className="btn-outline">Our Story</a>
+            </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="scroll-indicator" style={{ opacity: 1 - scrollP * 5 }}>
+            <div className="scroll-dot" />
+            <span>SCROLL</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── MARQUEE ──────────────────────────────────────────────────
+  function Marquee() {
+    const items = ['🌾 Organic Paddy', '💛 Pure Turmeric', '🥜 Fresh Groundnuts', '🟤 Sweet Chikoo', '🥭 Farm Mangoes', '✅ Zero Pesticides', '🌿 100% Natural', '🚜 Direct from Farm'];
+    const doubled = [...items, ...items];
+    return (
+      <div className="marquee-section">
+        <div className="marquee-track">
+          {doubled.map((t, i) => (
+            <div key={i} className="marquee-item">
+              {t} <span className="marquee-dot">✦</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── ABOUT ────────────────────────────────────────────────────
+  function About() {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.15 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    return (
+      <section className="about-section" id="about">
+        <div className="section-inner" ref={ref}>
+          <div className="about-grid">
+            {/* Visual */}
+            <div className={`about-visual reveal ${vis ? 'visible' : ''}`} style={{ transitionDelay: '0.1s' }}>
+              <div className="about-circle-bg" />
+              <div className="about-main-img">🌱</div>
+              <div className="about-badge-float one">
+                <div className="badge-icon">🏅</div>
+                <div>
+                  <div className="badge-text-main">Non-Certified</div>
+                  <div className="badge-text-sub"> Organic</div>
+                </div>
+              </div>
+              <div className="about-badge-float two">
+                <div className="badge-icon">🚜</div>
+                <div>
+                  <div className="badge-text-main">5+ Acres</div>
+                  <div className="badge-text-sub">Farmland</div>
+                </div>
+              </div>
+              <div className="about-badge-float three">
+                <div className="badge-icon">👨‍👩‍👧‍👦</div>
+                <div>
+                  <div className="badge-text-main">Family Owned</div>
+                  <div className="badge-text-sub">Since 2023</div>
+                </div>
+              </div>
+            </div>
+            {/* Text */}
+            <div className={`about-text-block reveal ${vis ? 'visible' : ''}`} style={{ transitionDelay: '0.25s' }}>
+              <div className="section-tag">Our Story</div>
+              <h2 className="section-title">Rooted in <em>Tradition</em>, Growing for Tomorrow</h2>
+              <p className="section-desc">
+                Sayi Farms began as a dream in the red-soil heartlands of Tamil Nadu — to grow food the organic way. No shortcuts, no chemicals. Just the sun, the rain, ancient seeds, and deeply patient hands.
+              </p>
+              <p className="section-desc" style={{ marginTop: '1rem' }}>
+                Today, across 5+ acres, we grow paddy, turmeric, groundnuts, chikoo and mango using traditional organic methods. Every harvest is a promise — of purity, nutrition, and taste you can trust.
+              </p>
+              <div className="about-stats">
+                <div className="stat-item">
+                  <div className="stat-num">3+</div>
+                  <div className="stat-label">Years of Organic Farming</div>
+                </div>
+                <div className="stat-divider" />
+                <div className="stat-item">
+                  <div className="stat-num">5+</div>
+                  <div className="stat-label">Acres of Farmland</div>
+                </div>
+                <div className="stat-divider" />
+                <div className="stat-item">
+                  <div className="stat-num">7+</div>
+                  <div className="stat-label">Happy Families</div>
+                </div>
+              </div>
+              <a href="#products" className="btn-primary" style={{ width: 'fit-content' }}>Explore Our Produce →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── PRODUCTS ─────────────────────────────────────────────────
+  function Products({ onAddToCart }) {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.1 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    return (
+      <section className="products-section" id="products" ref={ref}>
+        <div className="section-inner">
+          <div className={`products-header reveal ${vis ? 'visible' : ''}`}>
+            <div className="section-tag">Our Harvest</div>
+            <h2 className="section-title">Nature's <em>Finest</em>, Delivered Fresh</h2>
+            <p className="section-desc" style={{ margin: '0 auto' }}>
+               - no cold storage, no preservatives. Just pure organic goodness.
+            </p>
+          </div>
+          <div className="products-grid">
+            {PRODUCTS.map((p, i) => (
+              <div
+                key={p.id}
+                className={`product-card reveal ${vis ? 'visible' : ''} ${p.featured ? 'featured' : ''} ${p.wide ? 'wide' : ''}`}
+                style={{ transitionDelay: `${0.1 + i * 0.12}s` }}
+              >
+                <div className="product-img-wrap">
+                  <span className="product-emoji">{p.emoji}</span>
+                  <div className="product-shine" />
+                  <div className="product-tag-organic">{p.tag}</div>
+                </div>
+                <div className="product-body">
+                  <div className="product-name">{p.name}</div>
+                  <p className="product-desc">{p.desc}</p>
+                  <div className="product-footer">
+                    <span className="product-price-tag">{p.price}</span>
+                    <button
+                      className="btn-add-cart"
+                      onClick={() => onAddToCart(p)}
+                    >+ Add to Cart</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── WHY ORGANIC ──────────────────────────────────────────────
+  function WhyOrganic() {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.15 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    return (
+      <section className="why-section" id="why" ref={ref}>
+        <div className="section-inner">
+          <div className="why-grid">
+            <div className={`reveal ${vis ? 'visible' : ''}`}>
+              <div className="section-tag">Why Organic?</div>
+              <h2 className="section-title">The <em>Natural</em> Way is the Better Way</h2>
+              <p className="section-desc">Our farming philosophy is simple — work with nature, not against it. Every choice we make prioritises health, soil, and sustainability.</p>
+              <div className="why-features">
+                {[
+                  { icon: '🧪', cls: 'fi-green', title: 'Zero Harmful Chemicals', desc: 'No synthetic pesticides, herbicides, or artificial fertilisers — ever. Your food is as clean as it gets.' },
+                  { icon: '🌍', cls: 'fi-amber', title: 'Soil Health First', desc: 'We use composting, crop rotation and natural bio-inputs that regenerate the soil rather than deplete it.' },
+                  { icon: '💧', cls: 'fi-blue', title: 'Water Conservation', desc: 'Traditional drip irrigation and rain-fed methods use 60% less water than conventional farming.' },
+                  { icon: '💪', cls: 'fi-rose', title: 'Nutritionally Superior', desc: 'Studies show organic produce contains up to 40% more antioxidants and minerals than conventionally grown food.' },
+                ].map((f, i) => (
+                  <div key={i} className="feature-item">
+                    <div className={`feature-icon ${f.cls}`}>{f.icon}</div>
+                    <div className="feature-text">
+                      <h4>{f.title}</h4>
+                      <p>{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── PROCESS ──────────────────────────────────────────────────
+  function Process() {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.1 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    return (
+      <section className="process-section" ref={ref}>
+        <div className="section-inner">
+          <div className={`reveal ${vis ? 'visible' : ''}`} style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 0' }}>
+            <div className="section-tag">Farm to Table</div>
+            <h2 className="section-title">How We Bring <em>Freshness</em> to Your Door</h2>
+          </div>
+          <div className="process-steps">
+            {[
+              { icon: '🌱', title: 'Seed Selection', desc: 'We select heirloom seeds certified organic and suited to our micro-climate.' },
+              { icon: '🚜', title: 'Organic Cultivation', desc: 'Natural bio-inputs, compost, and traditional irrigation methods.' },
+              { icon: '🌾', title: 'Hand Harvest', desc: 'Harvested at peak ripeness by skilled hands, with care and respect.' },
+              { icon: '📦', title: 'Selling', desc: 'Available for Sale in our Farm' },
+            ].map((s, i) => (
+              <div key={i} className={`process-step reveal ${vis ? 'visible' : ''}`} style={{ transitionDelay: `${0.1 + i * 0.15}s` }}>
+                <div className="step-num">{s.icon}</div>
+                <div className="step-title">{s.title}</div>
+                <div className="step-desc">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+
+  // ── GALLERY ──────────────────────────────────────────────────
+  function Gallery() {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.1 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    const items = [
+      { emoji: '🌾', label: 'Paddy Fields at Golden Hour' },
+      { emoji: '💛', label: 'Fresh Turmeric Roots' },
+      { emoji: '🥭', label: 'Mango Orchard' },
+      { emoji: '🥜', label: 'Groundnut Harvest' },
+      { emoji: '🟤', label: 'Chikoo Trees' },
+    ];
+    return (
+      <section className="gallery-section" id="gallery" ref={ref}>
+        <div className="section-inner">
+          <div className={`gallery-header reveal ${vis ? 'visible' : ''}`}>
+            <div className="section-tag">Farm Gallery</div>
+            <h2 className="section-title">Life on <em>Sayi Farms</em></h2>
+          </div>
+          <div className="gallery-grid">
+            {items.map((item, i) => (
+              <div key={i} className={`gallery-item reveal ${vis ? 'visible' : ''}`} style={{ transitionDelay: `${i * 0.1}s` }}>
+                {item.emoji}
+                <div className="gallery-label">{item.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── CONTACT ──────────────────────────────────────────────────
+  function Contact() {
+    const ref = useRef(null);
+    const [vis, setVis] = useState(false);
+    const [form, setForm] = useState({ name: '', phone: '', email: '', product: '', qty: '', message: '' });
+    const [submitted, setSubmitted] = useState(false);
+    useEffect(() => {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold: 0.1 });
+      if (ref.current) io.observe(ref.current);
+      return () => io.disconnect();
+    }, []);
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 5000);
+      setForm({ name: '', phone: '', email: '', product: '', qty: '', message: '' });
+    };
+    return (
+      <section className="contact-section" id="contact" ref={ref}>
+        <div className="section-inner">
+          <div className="contact-grid">
+            <div className={`contact-info reveal ${vis ? 'visible' : ''}`}>
+              <div className="section-tag" style={{ background: 'rgba(245,158,11,0.2)', color: '#fde68a' }}>Get in Touch</div>
+              <h2 className="section-title" style={{ color: '#fff' }}>Order <em style={{ color: '#fde68a' }}>Fresh</em> Direct from the Farm</h2>
+              <p className="section-desc" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                Order 24-48 hours before getting it from our farm.
+              </p>
+              <div className="contact-details">
+                {[
+                  { icon: '📍', text: 'Sayi Farms, Moolapallipatti, Namakkal' },
+                  { icon: '📞', text: '+91 8610836667' },
+                  { icon: '📧', text: 'sayifarms@sayifarms.in' },
+                  { icon: '🕐', text: 'Orders accepted Mon–Sat, 10AM – 6PM' },
+                ].map((d, i) => (
+                  <div key={i} className="contact-detail-item">
+                    <div className="contact-detail-icon">{d.icon}</div>
+                    <span>{d.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={`reveal ${vis ? 'visible' : ''}`} style={{ transitionDelay: '0.2s' }}>
+              <form className="order-form" onSubmit={handleSubmit}>
+                <h3>Place Your Order 🌾</h3>
+                {submitted && (
+                  <div style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)', borderRadius: 12, padding: '1rem', color: '#86efac', marginBottom: '1rem', fontSize: '0.95rem', fontWeight: 700 }}>
+                    ✅ Thank you! We'll contact you within 2 hours to confirm your order.
+                  </div>
+                )}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="Your name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} required />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Product</label>
+                    <select value={form.product} onChange={e => setForm({ ...form, product: e.target.value })} required>
+                      <option value="">Select product</option>
+                      <option>🌾 Organic Paddy</option>
+                      <option>💛 Golden Turmeric</option>
+                      <option>🥜 Farm Groundnuts</option>
+                      <option>🟤 Sweet Chikoo</option>
+                      <option>🥭 Organic Mango</option>
+                      <option>Mixed Basket</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Quantity (kg)</label>
+                    <input type="number" min="1" placeholder="e.g. 5" value={form.qty} onChange={e => setForm({ ...form, qty: e.target.value })} required />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Message / Delivery Address</label>
+                  <textarea placeholder="Your full delivery address and any special notes..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} />
+                </div>
+                <button type="submit" className="btn-submit">🌿 Send Order Request</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── FOOTER ───────────────────────────────────────────────────
+  function Footer() {
+    return (
+      <footer>
+        <div className="section-inner">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <div className="nav-logo" style={{ marginBottom: '1rem' }}>
+                <div className="nav-logo-icon">🌾</div>
+                <div className="nav-logo-text">Sayi <span>Farms</span></div>
+              </div>
+              <p>Pure organic produce from the heart of Tamil Nadu. Grown with love, delivered with care.</p>
+              <div className="social-links" style={{ marginTop: '1.5rem' }}>
+                {['📘','📸','🐦','▶️'].map((s, i) => (
+                  <a key={i} href="#" className="social-link">{s}</a>
+                ))}
+              </div>
+            </div>
+            <div className="footer-col">
+              <h4>Products</h4>
+              <ul>
+                {['Organic Paddy','Golden Turmeric','Farm Groundnuts','Sweet Chikoo','Organic Mango','Mixed Basket'].map(p => (
+                  <li key={p}><a href="#products">{p}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h4>Company</h4>
+              <ul>
+                {['Our Story','Farm Gallery','Certifications','Blog','Careers','Press'].map(l => (
+                  <li key={l}><a href="#about">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h4>Support</h4>
+              <ul>
+                {['How to Order','Delivery Info','Return Policy','FAQ','Bulk Orders','WhatsApp Us'].map(l => (
+                  <li key={l}><a href="#contact">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>© 2023 Sayi Farms. Made with <span>❤️</span> in Tamil Nadu.</p>
+            <p>Privacy Policy · Terms of Service</p>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // ── CART MODAL ───────────────────────────────────────────────
+  function CartModal({ cart, onClose, onRemove, onQty }) {
+    const total = cart.reduce((sum, item) => {
+      const price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+      return sum + price * item.qty;
+    }, 0);
+    return (
+      <div className="cart-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+        <div className="cart-panel">
+          <div className="cart-header">
+            <h3>🛒 Your Cart</h3>
+            <button className="cart-close" onClick={onClose}>✕</button>
+          </div>
+          <div className="cart-items">
+            {cart.length === 0 ? (
+              <div className="cart-empty">
+                <span className="cart-empty-icon">🌾</span>
+                Your cart is empty.<br />Add some fresh produce!
+              </div>
+            ) : cart.map(item => (
+              <div key={item.id} className="cart-item">
+                <div className="cart-item-icon">{item.emoji}</div>
+                <div className="cart-item-info">
+                  <div className="cart-item-name">{item.name}</div>
+                  <div className="cart-item-price">{item.price}</div>
+                  <div className="cart-qty-ctrl">
+                    <button className="qty-btn" onClick={() => onQty(item.id, -1)}>−</button>
+                    <span className="qty-num">{item.qty}</span>
+                    <button className="qty-btn" onClick={() => onQty(item.id, 1)}>+</button>
+                  </div>
+                </div>
+                <button className="cart-remove" onClick={() => onRemove(item.id)}>🗑</button>
+              </div>
+            ))}
+          </div>
+          {cart.length > 0 && (
+            <div className="cart-footer">
+              <div className="cart-total">
+                <span>Total</span>
+                <span className="cart-total-price">₹{total.toFixed(0)}</span>
+              </div>
+              <button className="btn-checkout" onClick={() => { alert('🌿 Order received! We will call you within 2 hours to confirm delivery.'); onClose(); }}>
+                Place Order →
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── NAVBAR ───────────────────────────────────────────────────
+  function Navbar({ cartCount, onOpenCart }) {
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+      const fn = () => setScrolled(window.scrollY > 60);
+      window.addEventListener('scroll', fn, { passive: true });
+      return () => window.removeEventListener('scroll', fn);
+    }, []);
+    return (
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+        <a className="nav-logo" href="#top">
+          <div className="nav-logo-icon">🌾</div>
+          <div className="nav-logo-text">Sayi <span>Farms</span></div>
+        </a>
+        <ul className="nav-links">
+          {[['#about','Our Story'],['#products','Products'],['#why','Why Organic'],['#gallery','Gallery'],['#contact','Order Now']].map(([href, label]) => (
+            <li key={href}><a href={href}>{label}</a></li>
+          ))}
+        </ul>
+        <button className="nav-cart" onClick={onOpenCart}>
+          🛒 Cart
+          {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+        </button>
+      </nav>
+    );
+  }
+
+  // ── TOAST ────────────────────────────────────────────────────
+  function Toast({ msg }) {
+    return msg ? <div className="toast">✅ {msg}</div> : null;
+  }
+
+  // ── APP ──────────────────────────────────────────────────────
+  function App() {
+    const [cart, setCart] = useState([]);
+    const [cartOpen, setCartOpen] = useState(false);
+    const [toast, setToast] = useState('');
+
+    const showToast = (msg) => {
+      setToast(msg);
+      setTimeout(() => setToast(''), 3000);
+    };
+
+    const addToCart = (product) => {
+      setCart(prev => {
+        const exists = prev.find(i => i.id === product.id);
+        if (exists) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
+        return [...prev, { ...product, qty: 1 }];
+      });
+      showToast(`${product.emoji} ${product.name} added to cart!`);
+    };
+
+    const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id));
+    const changeQty = (id, delta) => {
+      setCart(prev => prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
+    };
+
+    const cartCount = cart.reduce((s, i) => s + i.qty, 0);
+
+    return (
+      <>
+        <Navbar cartCount={cartCount} onOpenCart={() => setCartOpen(true)} />
+        <main id="top">
+          <Hero cartCount={cartCount} onOpenCart={() => setCartOpen(true)} />
+          <Marquee />
+          <About />
+          <Products onAddToCart={addToCart} />
+          <WhyOrganic />
+          <Process />
+          <Gallery />
+          <Contact />
+        </main>
+        <Footer />
+        {cartOpen && (
+          <CartModal
+            cart={cart}
+            onClose={() => setCartOpen(false)}
+            onRemove={removeFromCart}
+            onQty={changeQty}
+          />
+        )}
+        <Toast msg={toast} />
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
